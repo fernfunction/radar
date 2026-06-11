@@ -1,0 +1,26 @@
+<Page
+    x:Class="Radar.App.Pages.ProcessTreePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Radar.App.Services">
+
+    <Grid Padding="24" RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TitleText" Style="{StaticResource TitleTextBlockStyle}"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
+            <ComboBox x:Name="PeriodCombo" Header="{loc:Loc Key=Período}" SelectedIndex="0" SelectionChanged="Filters_Changed">
+                <ComboBoxItem Content="{loc:Loc Key=24 horas}"/>
+                <ComboBoxItem Content="{loc:Loc Key=7 dias}"/>
+            </ComboBox>
+            <TextBlock x:Name="HintText" VerticalAlignment="Bottom" Opacity="0.6" Margin="0,0,0,6"
+                       Text="{loc:Loc Key=Linhagem navegável incluindo processos mortos. O Gerenciador de Tarefas só vê o presente.}"/>
+        </StackPanel>
+
+        <TreeView x:Name="Tree" Grid.Row="2" SelectionMode="None" ItemInvoked="Tree_ItemInvoked"/>
+    </Grid>
+</Page>

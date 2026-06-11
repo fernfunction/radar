@@ -1,0 +1,206 @@
+<Page
+    x:Class="Radar.App.Pages.DossierPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Radar.App.Pages"
+    xmlns:loc="using:Radar.App.Services">
+
+    <ScrollViewer Padding="24">
+        <StackPanel Spacing="14" MaxWidth="1100">
+
+            <!-- Cabeçalho: identidade + score decomposto + assinatura -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="10">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock x:Name="ProcName" Style="{StaticResource TitleTextBlockStyle}"/>
+                                <Border x:Name="VerdictBadge" CornerRadius="4" Padding="8,3" VerticalAlignment="Center"
+                                        Visibility="Collapsed" Background="#607D8B">
+                                    <TextBlock x:Name="VerdictText" Foreground="White" FontSize="12"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock x:Name="ProcPath" Opacity="0.7" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="ProcMeta" Opacity="0.7" FontSize="12" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+                            <TextBlock x:Name="SignatureText" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="OriginText" FontSize="13" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Spacing="4">
+                            <Border x:Name="ScoreBadge" CornerRadius="8" Padding="18,10" HorizontalAlignment="Center">
+                                <TextBlock x:Name="ScoreNumber" FontSize="32" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                            <TextBlock x:Name="ScoreBand" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="ScoreMuted" HorizontalAlignment="Center" FontSize="11" Opacity="0.6"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Ações do usuário -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button x:Name="TrustButton" Click="Trust_Click"/>
+                        <Button x:Name="SuspectButton" Click="Suspect_Click"/>
+                        <Button x:Name="InvestigateButton" Click="Investigate_Click"/>
+                        <Button x:Name="KillButton" Click="Kill_Click" Visibility="Collapsed"/>
+                        <Button x:Name="OpenLocationButton" Click="OpenLocation_Click"/>
+                        <DropDownButton x:Name="MoreActions" Content="{loc:Loc Key=Mais ações}">
+                            <DropDownButton.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem x:Name="CopyIocItem" Click="CopyIoc_Click"/>
+                                    <MenuFlyoutItem x:Name="ReputationItem" Click="Reputation_Click"/>
+                                    <MenuFlyoutItem x:Name="RemovalPlanItem" Click="RemovalPlan_Click"/>
+                                    <MenuFlyoutItem x:Name="ExportHtmlItem" Click="ExportHtml_Click"/>
+                                    <MenuFlyoutItem x:Name="ExportJsonItem" Click="ExportJson_Click"/>
+                                </MenuFlyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Score decomposto sinal a sinal -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="{loc:Loc Key=Por que este score? (cada ponto é rastreável à evidência)}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <ItemsControl x:Name="SignalsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:SignalRow">
+                                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,2">
+                                    <Expander.Header>
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="52"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind Weight}" FontWeight="Bold"
+                                                       Foreground="{x:Bind WeightBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Expander.Header>
+                                    <StackPanel Spacing="4" Padding="8,0">
+                                        <TextBlock Text="{x:Bind Explanation}" TextWrapping="Wrap" Opacity="0.85"/>
+                                        <TextBlock Text="{x:Bind Evidence}" TextWrapping="Wrap" Opacity="0.6"
+                                                   FontSize="12" IsTextSelectionEnabled="True"/>
+                                    </StackPanel>
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock x:Name="NoSignals" Opacity="0.6" Visibility="Collapsed"
+                               Text="{loc:Loc Key=Nenhum sinal de suspeição registrado para esta execução.}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Abas -->
+            <Pivot x:Name="Tabs" MinHeight="320">
+                <PivotItem Header="Replay">
+                    <ListView x:Name="ReplayList" SelectionMode="None" MaxHeight="420">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ReplayRow">
+                                <Grid ColumnSpacing="10" Padding="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{x:Bind When}" FontSize="12" Opacity="0.75"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Text}" TextWrapping="Wrap" FontSize="13"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Rede}">
+                    <ListView x:Name="NetList" SelectionMode="None" MaxHeight="420">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:KeyValueRow">
+                                <Grid ColumnSpacing="10" Padding="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{x:Bind Key}" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Value}" FontSize="13" Opacity="0.75"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Arquivos}">
+                    <ListView x:Name="FilesList" SelectionMode="None" MaxHeight="420">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:KeyValueRow">
+                                <Grid ColumnSpacing="10" Padding="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{x:Bind Key}" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Value}" FontSize="13" Opacity="0.75"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Origem e cadeia}">
+                    <StackPanel Spacing="8" Padding="0,8">
+                        <TextBlock x:Name="ChainOrigin" TextWrapping="Wrap"/>
+                        <TextBlock Text="{loc:Loc Key=Cadeia de ancestralidade (snapshot na criação):}" FontWeight="SemiBold"/>
+                        <ItemsControl x:Name="ChainList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:KeyValueRow">
+                                    <TextBlock FontSize="13" Padding="0,2">
+                                        <Run Text="{x:Bind Key}"/> <Run Text="{x:Bind Value}" Foreground="Gray"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Persistências}">
+                    <ListView x:Name="PersistList" SelectionMode="None" MaxHeight="420">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:KeyValueRow">
+                                <StackPanel Padding="0,3">
+                                    <TextBlock Text="{x:Bind Key}" FontSize="13" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Bind Value}" FontSize="12" Opacity="0.7" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Execuções anteriores}">
+                    <ListView x:Name="HistoryList" SelectionMode="None" MaxHeight="420" IsItemClickEnabled="True"
+                              ItemClick="History_Clicked">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:SearchRow">
+                                <Grid ColumnSpacing="10" Padding="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Background="{x:Bind ScoreBrush}" CornerRadius="4" Padding="5,1"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{x:Bind Score}" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Detail}" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind When}" FontSize="12" Opacity="0.6"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+                <PivotItem Header="{loc:Loc Key=Anotações}">
+                    <StackPanel Spacing="8" Padding="0,8" MaxWidth="600" HorizontalAlignment="Left">
+                        <TextBox x:Name="NotesBox" Header="{loc:Loc Key=Suas anotações sobre esta investigação}"
+                                 AcceptsReturn="True" MinHeight="120" TextWrapping="Wrap"/>
+                        <Button Content="{loc:Loc Key=Salvar anotações}" Click="SaveNotes_Click"/>
+                    </StackPanel>
+                </PivotItem>
+            </Pivot>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

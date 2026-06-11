@@ -1,0 +1,130 @@
+<Page
+    x:Class="Radar.App.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="using:Radar.App.Services">
+
+    <ScrollViewer Padding="24">
+        <StackPanel Spacing="16" MaxWidth="860" HorizontalAlignment="Left">
+            <TextBlock x:Name="TitleText" Style="{StaticResource TitleTextBlockStyle}"/>
+
+            <!-- Controle granular da coleta -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="{loc:Loc Key=Coleta: o que o Radar observa}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <ComboBox x:Name="ProfileCombo" Header="{loc:Loc Key=Perfil de coleta}" SelectionChanged="Profile_Changed">
+                        <ComboBoxItem Content="{loc:Loc Key=Completo}"/>
+                        <ComboBoxItem Content="{loc:Loc Key=Equilibrado}"/>
+                        <ComboBoxItem Content="{loc:Loc Key=Mínimo}"/>
+                        <ComboBoxItem Content="{loc:Loc Key=Personalizado}"/>
+                    </ComboBox>
+                    <StackPanel x:Name="ModulesPanel" Spacing="6"/>
+                    <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap"
+                               Text="{loc:Loc Key=Mudanças aplicam sem reiniciar o coletor e ficam registradas no log operacional.}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Exclusões de coleta -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Exclusões de coleta (privacidade ativa)}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <TextBlock Opacity="0.7" FontSize="12" TextWrapping="Wrap"
+                               Text="{loc:Loc Key='O que for excluído aqui NÃO é sequer gravado em disco. Diferente da lista de confiança, que apenas filtra a exibição.'}"/>
+                    <ListView x:Name="ExclusionsList" SelectionMode="Single" MaxHeight="160"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox x:Name="NewExclusionBox" PlaceholderText="{loc:Loc Key=prefixo de caminho (ex.: D:\Trabalho\Sigiloso)}" Width="380"/>
+                        <Button Content="{loc:Loc Key=Adicionar}" Click="AddExclusion_Click"/>
+                        <Button Content="{loc:Loc Key=Remover selecionada}" Click="RemoveExclusion_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Armazenamento -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Armazenamento dos dados}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <TextBlock x:Name="DataRootText" IsTextSelectionEnabled="True"/>
+                    <TextBlock x:Name="DataRootStats" Opacity="0.65" FontSize="12"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox x:Name="NewRootBox" PlaceholderText="{loc:Loc Key=nova raiz de dados…}" Width="380"/>
+                        <Button Content="{loc:Loc Key=Validar e migrar}" Click="Migrate_Click"/>
+                    </StackPanel>
+                    <TextBlock x:Name="MigrateResult" FontSize="12" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <NumberBox x:Name="RetentionDays" Header="{loc:Loc Key=Retenção de eventos brutos (dias)}" Minimum="1" Maximum="365"
+                                   SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed"/>
+                        <NumberBox x:Name="RetentionMb" Header="{loc:Loc Key=Teto do banco (MB)}" Minimum="64" Maximum="65536"
+                                   SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Frequências -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Frequência das ações periódicas}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <NumberBox x:Name="RatePersistence" Header="{loc:Loc Key=Varredura de persistência (min)}" Minimum="5" Maximum="1440"
+                                   SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed"/>
+                        <NumberBox x:Name="RateSignatures" Header="{loc:Loc Key=Lote de assinaturas (s)}" Minimum="10" Maximum="3600"
+                                   SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed"/>
+                        <NumberBox x:Name="RateCheckpoint" Header="{loc:Loc Key=Checkpoint do banco (s)}" Minimum="5" Maximum="600"
+                                   SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed"/>
+                    </StackPanel>
+                    <TextBlock x:Name="RateCostHint" Opacity="0.6" FontSize="12" TextWrapping="Wrap"/>
+                    <NumberBox x:Name="RateMaxToasts" Header="{loc:Loc Key=Máximo de notificações por hora (antifadiga)}" Minimum="1" Maximum="60"
+                               SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Ciclo de vida UI × coleta e notificações -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Ciclo de vida e notificações}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <ToggleSwitch x:Name="StopOnClose" Header="{loc:Loc Key=Encerrar a coleta ao fechar a interface}" Toggled="StopOnClose_Toggled"/>
+                    <TextBlock x:Name="StopOnCloseWarning" Foreground="#CA5010" FontSize="12" TextWrapping="Wrap" Visibility="Collapsed"
+                               Text="{loc:Loc Key='⚠ Com isso ligado, processos de vida curta que rodarem com o app fechado ficarão para sempre invisíveis. O produto depende de coleta contínua.'}"/>
+                    <ToggleSwitch x:Name="StartWithWindows" Header="{loc:Loc Key=Iniciar a coleta junto com o Windows}" Toggled="StartWithWindows_Toggled"/>
+                    <ToggleSwitch x:Name="ToastsEnabled" Header="{loc:Loc Key=Toast para achados em tempo real}" Toggled="Setting_Changed"/>
+                    <ComboBox x:Name="ToastThreshold" Header="{loc:Loc Key=Limiar de notificação}" SelectionChanged="Setting_Changed">
+                        <ComboBoxItem Content="{loc:Loc Key=Apenas Crítico (padrão antifadiga)}"/>
+                        <ComboBoxItem Content="{loc:Loc Key=Suspeito ou acima}"/>
+                        <ComboBoxItem Content="{loc:Loc Key=Atenção ou acima}"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Privacidade e idioma -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Privacidade e idioma}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <TextBlock Opacity="0.7" FontSize="12" TextWrapping="Wrap"
+                               Text="{loc:Loc Key=Zero telemetria por padrão. Nenhuma consulta externa sem opt-in explícito e granular.}"/>
+                    <ToggleSwitch x:Name="OptInLists" Header="{loc:Loc Key=Atualizar listas curadas online (semanal)}" Toggled="Setting_Changed"/>
+                    <ToggleSwitch x:Name="OptInReputation" Header="{loc:Loc Key=Consulta de reputação de hash por API (requer chave própria)}" Toggled="Setting_Changed"/>
+                    <ComboBox x:Name="LanguageCombo" Header="{loc:Loc Key=Idioma / Language}" SelectionChanged="Language_Changed">
+                        <ComboBoxItem Content="Português (Brasil)"/>
+                        <ComboBoxItem Content="English"/>
+                    </ComboBox>
+                    <NumberBox x:Name="ShortLivedThreshold" Header="{loc:Loc Key=Limiar de vida curta (segundos)}" Minimum="5" Maximum="300"
+                               SpinButtonPlacementMode="Inline" ValueChanged="Setting_Changed" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Operação -->
+            <Border Style="{StaticResource CardBorder}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{loc:Loc Key=Operação e suporte}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="{loc:Loc Key=Abrir pasta de logs}" Click="OpenLogs_Click"/>
+                        <Button Content="{loc:Loc Key=Abrir settings.json (pesos do score etc.)}" Click="OpenSettingsJson_Click"/>
+                        <Button Content="{loc:Loc Key=Habilitar auditoria 4688 do Windows}" Click="EnableAudit_Click"/>
+                    </StackPanel>
+                    <TextBlock x:Name="AuditResult" FontSize="12" TextWrapping="Wrap"/>
+                    <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap"
+                               Text="{loc:Loc Key='Limitações declaradas: rootkits em kernel podem cegar qualquer monitor user-mode, inclusive este; o Radar não inspeciona conteúdo de tráfego (vê com quem e quanto, não o quê); score alto não é veredito; a coleta só enxerga a partir da instalação; não substitui antivírus.'}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

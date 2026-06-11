@@ -1,0 +1,8 @@
+{
+  // The "coreclr" debugger used in launch.json is provided by the C# extension.
+  // C# Dev Kit adds the Test Explorer and better solution support.
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit"
+  ]
+}

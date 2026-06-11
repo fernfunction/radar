@@ -1,0 +1,56 @@
+<Window
+    x:Class="Radar.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <NavigationView x:Name="Nav"
+                        IsBackButtonVisible="Auto"
+                        IsBackEnabled="False"
+                        IsSettingsVisible="False"
+                        PaneDisplayMode="Left"
+                        OpenPaneLength="220"
+                        BackRequested="Nav_BackRequested"
+                        SelectionChanged="Nav_SelectionChanged">
+            <NavigationView.KeyboardAccelerators>
+                <KeyboardAccelerator Modifiers="Menu" Key="Left" Invoked="BackAccelerator_Invoked"/>
+            </NavigationView.KeyboardAccelerators>
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="NavDashboard" Tag="dashboard">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavTimeline" Tag="timeline">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE823;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavShortLived" Tag="shortlived">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE916;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavSignatures" Tag="signatures">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xEB95;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavNetwork" Tag="network">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE968;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavPersistence" Tag="persistence">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE8D1;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavTree" Tag="tree">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE8B7;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavSearch" Tag="search">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE721;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Name="NavCollector" Tag="collector" SelectsOnInvoked="False" Tapped="Collector_Tapped">
+                    <NavigationViewItem.Icon><FontIcon x:Name="CollectorGlyph" Glyph="&#xEA3B;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavSettings" Tag="settings">
+                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE713;"/></NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="ContentFrame"/>
+        </NavigationView>
+    </Grid>
+</Window>

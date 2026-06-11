@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>Radar.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;ARM64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <!-- Em build via solução, Platform chega como propriedade global (Any CPU) e não pode ser
+         sobrescrita aqui; o RID é derivado de forma independente para o WindowsAppSDK. -->
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <PlatformTarget Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU' or '$(Platform)' == 'Any CPU'">x64</PlatformTarget>
+    <!-- Caminho de saída determinístico: sem isso, build via projeto vai para bin\x64\Debug e via
+         solução para bin\Debug. Com false, ambos convergem para bin\Debug\<TFM>\<RID>. -->
+    <AppendPlatformToOutputPath>false</AppendPlatformToOutputPath>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyTitle>Radar</AssemblyTitle>
+    <Version>0.1.0</Version>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <!-- Ícone do programa (.exe / barra de tarefas / Explorer): mesma arte da bandeja. -->
+    <ApplicationIcon>..\..\assets\radar.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Radar.Core\Radar.Core.csproj" />
+    <ProjectReference Include="..\Radar.Data\Radar.Data.csproj" />
+    <ProjectReference Include="..\Radar.Windows\Radar.Windows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copiado para a saída para o ícone da janela WinUI (AppWindow.SetIcon). -->
+    <Content Include="..\..\assets\radar.ico" Link="radar.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260529003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.8249" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+</Project>

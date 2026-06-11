@@ -1,0 +1,48 @@
+{
+  // Build tasks referenced by the debug configs (launch.json -> preLaunchTask).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-all",
+      "detail": "Build the whole solution (Radar.slnx)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/Radar.slnx", "-v", "minimal"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "build-app",
+      "detail": "Build only the WinUI 3 interface (Radar.App)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/src/Radar.App/Radar.App.csproj", "-v", "minimal"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-collector",
+      "detail": "Build only the collector (Radar.Collector)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/src/Radar.Collector/Radar.Collector.csproj", "-v", "minimal"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-tests",
+      "detail": "Build the Core tests",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "${workspaceFolder}/tests/Radar.Core.Tests/Radar.Core.Tests.csproj", "-v", "minimal"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test",
+      "detail": "Run the Core unit tests",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/tests/Radar.Core.Tests/Radar.Core.Tests.csproj", "-v", "minimal"],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "test", "isDefault": true }
+    }
+  ]
+}

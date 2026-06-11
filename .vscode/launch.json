@@ -1,0 +1,96 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // WinUI 3 interface. Radar.App.exe is asInvoker (no elevation), so the debugger attaches
+      // directly.
+      "name": "Radar.App (UI)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-app",
+      "program": "${workspaceFolder}/src/Radar.App/bin/Debug/net10.0-windows10.0.19041.0/win-x64/Radar.App.exe",
+      "cwd": "${workspaceFolder}/src/Radar.App/bin/Debug/net10.0-windows10.0.19041.0/win-x64",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      // Collector REQUESTING ELEVATION (UAC) - full ETW. On launch (F5), the collector (asInvoker
+      // manifest) relaunches itself elevated via UAC using the --elevate argument, and the elevated
+      // instance takes over with the kernel ETW sessions enabled (network/DNS/file/image).
+      //
+      // NOTE: Windows does not allow debugging across the UAC boundary from a non-elevated VS Code.
+      // As soon as the collector elevates, THIS debug session ends (expected - not a crash) and the
+      // elevated collector keeps running without breakpoints. To set breakpoints in the collector,
+      // use the "degraded" config below, or open VS Code as Administrator (then the .exe starts
+      // elevated and the debugger follows it).
+      "name": "Radar.Collector (request elevation / UAC - full ETW)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-collector",
+      "program": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0/Radar.Collector.exe",
+      "args": ["--elevate"],
+      "cwd": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      // Collector WITHOUT elevation (degraded / polling mode), WITH breakpoints. We point at the
+      // DLL: run through the dotnet host (asInvoker), it does not try to elevate and VS Code keeps
+      // the debug session. Covers all the pipeline, tray, database and UI logic - it just does not
+      // open kernel ETW sessions. This is the config for day-to-day debugging of the collector.
+      "name": "Radar.Collector (degraded - breakpoints, no elevation)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-collector",
+      "program": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0/Radar.Collector.dll",
+      "cwd": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      // Collector with FULL ETW AND BREAKPOINTS. Requires opening VS Code as Administrator: the .exe
+      // (asInvoker) then inherits VS Code's elevation, there is no UAC prompt and the debugger
+      // follows everything. Without an elevated VS Code, this config runs in degraded mode (it does
+      // not elevate on its own).
+      "name": "Radar.Collector (elevated breakpoints - requires VS Code as Admin)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-collector",
+      "program": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0/Radar.Collector.exe",
+      "cwd": "${workspaceFolder}/src/Radar.Collector/bin/Debug/net10.0-windows10.0.19041.0",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      // Attach to a collector already running (e.g. started from the tray). To attach to an ELEVATED
+      // collector, VS Code must also be elevated.
+      "name": "Attach to a running Radar.Collector",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    }
+  ],
+  "compounds": [
+    {
+      // Brings up collector (degraded) + UI in one shortcut. Works with normal VS Code (no Admin).
+      "name": "UI + Collector (degraded)",
+      "configurations": [
+        "Radar.Collector (degraded - breakpoints, no elevation)",
+        "Radar.App (UI)"
+      ],
+      "stopAll": true,
+      "presentation": { "group": "radar", "order": 1 }
+    },
+    {
+      // UI + ELEVATED collector. The collector prompts for UAC (its debug session ends when it
+      // elevates, as explained above); the UI stays debuggable as usual and shows the full capture.
+      "name": "UI + Collector (elevated / UAC)",
+      "configurations": [
+        "Radar.Collector (request elevation / UAC - full ETW)",
+        "Radar.App (UI)"
+      ],
+      "stopAll": true,
+      "presentation": { "group": "radar", "order": 2 }
+    }
+  ]
+}
